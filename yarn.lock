@@ -4287,6 +4287,11 @@ toidentifier@1.0.0:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
 
+totally-di@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/totally-di/-/totally-di-0.1.0.tgz#5b0db4172ed04879fea2d6045c3996a94b8c253a"
+  integrity sha512-fW38xAZBIu4JLKv2IOKJv8FQoBlmxRajOye/L0a2h4jVfgSn/JpBZrbne1zJEGibEEOShinR4uSH6ONKFUxfrg==
+
 triple-beam@^1.2.0, triple-beam@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/triple-beam/-/triple-beam-1.3.0.tgz#a595214c7298db8339eeeee083e4d10bd8cb8dd9"
