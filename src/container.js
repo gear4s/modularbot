@@ -1,4 +1,4 @@
-import { ContainerV2 as Injector } from 'di-namic'
+import { Container as Injector } from 'totally-di'
 import Logger from "./lib/logger"
 
 import logform from "logform"
