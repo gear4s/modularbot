@@ -51,13 +51,14 @@ export default class Container {
       path: require("path"),
       logform: require('logform'),
       tripleBeam: require('triple-beam'),
-      winston: require('winston')
+      winston: require('winston'),
+      boolean: require('boolean').boolean
     });
 
     this.__injector.registerRawObject('config', this.#config);
     this.__injector.registerSingleton('logger', Logger, ['config', 'libraries']);
     this.__injector.registerSingleton('discord-service', require("./lib/service/discord-service").default, ['logger', 'config', 'libraries']);
-    this.__injector.registerSingleton('command-service', require("./lib/service/command-service").default, ['logger', 'config', 'discord-service', 'string-util', , 'context-util', 'command-util']);
+    this.__injector.registerSingleton('command-service', require("./lib/service/command-service").default, ['logger', 'config', 'libraries', 'discord-service', 'string-util', , 'context-util', 'command-util']);
     this.__injector.registerSingleton('test-command-service', require("./lib/service/test-command-service").default, ['logger', 'config', 'command-service', 'command-util']);
 
     this.__injector.registerRawObject('string-util', require("./lib/util/string").default);

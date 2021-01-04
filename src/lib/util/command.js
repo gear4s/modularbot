@@ -1,3 +1,7 @@
+import InvalidArgumentTypeError from "../errors/command-invalid-argument-type-error"
+
+const VALID_ARGS = [String, Number, Boolean, true]
+
 export class ChainableCommand {
   #commandObject = {
     name: null,
@@ -11,6 +15,24 @@ export class ChainableCommand {
     commandObject?.args && (this.#commandObject.args = commandObject.args);
     commandObject?.description && (this.#commandObject.description = commandObject.description);
     commandObject?.callback && (this.#commandObject.callback = commandObject.callback);
+
+    this.validateArgs();
+  }
+
+  /**
+   * @private
+   */
+  validateArgs(args=null) {
+    args || (args = this.#commandObject.args);
+
+    if(args === null) return;
+    if(!Array.isArray(args)) throw new Error("Args have to be an array of types");
+
+    for(const arg of args) {
+      if(!VALID_ARGS.includes(arg)) {
+        throw new InvalidArgumentTypeError(arg, null);
+      }
+    }
   }
 
   toJSON() {
@@ -23,6 +45,7 @@ export class ChainableCommand {
   }
 
   withArgs = args => {
+    this.validateArgs(args);
     this.#commandObject.args = args;
     return this;
   }

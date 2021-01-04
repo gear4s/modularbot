@@ -14,6 +14,10 @@ describe(testName(module), () => {
       }
     };
 
+    this.mockLibraries = {
+      boolean: sinon.stub().returns(true)
+    };
+
     this.mockDiscordService = {
       app: {
         on: sinon.stub()
@@ -37,13 +41,13 @@ describe(testName(module), () => {
   });
 
   it("should create an instance of the command service", function() {
-    new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     expect(this.mockDiscordService.app.on).to.have.been.calledWithExactly("message", sinon.match.func);
   });
 
   it("should handle the message event: bot user", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
     const getCtxStub = sinon.stub(svc, "getContext");
 
     await this.mockDiscordService.app.on.getCall(0).lastArg({
@@ -56,7 +60,7 @@ describe(testName(module), () => {
   });
 
   it("should handle the message event: invalid context", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     const mockContext = {
       valid: false,
@@ -81,7 +85,7 @@ describe(testName(module), () => {
   });
 
   it("should handle the message event: valid context", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     const mockContext = {
       valid: true,
@@ -106,13 +110,13 @@ describe(testName(module), () => {
   });
 
   it("should separate prefixes into an array", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     expect(svc.prefix).to.include.members([ '1', '2', '2,5', '3,75', ',', '!' ]);
   });
 
   it("should fail to register command without command type", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     try {
       svc.register();
@@ -122,7 +126,7 @@ describe(testName(module), () => {
   });
 
   it("should register a new command", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     svc.register(
       new ChainableCommand()
@@ -131,7 +135,7 @@ describe(testName(module), () => {
   });
 
   it("should fail to register a duplicate command", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     try {
       svc.register(
@@ -148,7 +152,7 @@ describe(testName(module), () => {
   });
 
   it("should throw an error relating to prefix containing strings", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     try {
       svc.getContext({})
@@ -158,7 +162,7 @@ describe(testName(module), () => {
   });
 
   it("should return an incomplete context", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     const incCtx = svc.getContext({
       content: "xyz"
@@ -170,7 +174,7 @@ describe(testName(module), () => {
   });
 
   it("should return a complete context with an invalid command", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     this.mockStringUtil.prototype.skipString = sinon.stub().callsFake(prefix => prefix === "!");
     this.mockStringUtil.prototype.getWord = sinon.stub().returns("hi");
@@ -185,13 +189,13 @@ describe(testName(module), () => {
   });
 
   it("should return a complete context with a valid command", async function() {
-    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
+    const svc = new CommandService(this.mockLogger, this.mockConfig, this.mockLibraries, this.mockDiscordService, this.mockStringUtil, this.mockContextUtil, this.mockCommandUtil);
 
     svc.register(
       new ChainableCommand()
         .withName("test1")
         .withDesc("testing desc")
-        .withArgs(["arg", "list"])
+        .withArgs([Number, Boolean])
     );
 
     this.mockStringUtil.prototype.skipString = sinon.stub().callsFake(prefix => prefix === "!");
@@ -205,7 +209,7 @@ describe(testName(module), () => {
     expect(incCtx).to.have.property("prefix").which.equals("!");
     expect(incCtx).to.have.property("command").which.deep.equals({
       name: "test1",
-      args: ["arg", "list"],
+      args: [Number, Boolean],
       description: "testing desc",
       callback: null
     });

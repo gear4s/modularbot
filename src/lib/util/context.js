@@ -1,8 +1,15 @@
+import InvalidArgumentError from "../errors/command-invalid-argument-error"
+
 export default class ContextUtil {
   /**
    * @type {import("./string").default}
    */
   #view = null;
+
+  /**
+   * @type {(value: any) => boolean}
+   */
+  #boolean = void 0;
 
   /**
    * @type {import("discord.js").Client}
@@ -12,7 +19,7 @@ export default class ContextUtil {
   /**
    * @type {{
    *  name: null,
-   *  args: null,
+   *  args: Array | null,
    *  description: null,
    *  callback: (ctx, ...args) => void
    * }}
@@ -36,12 +43,14 @@ export default class ContextUtil {
 
   /**
    * 
+   * @param {(value: any) => boolean} boolean 
    * @param {import("discord.js").Client} bot 
    * @param {String} prefix 
    * @param {import("./string").default} view 
    * @param {import("discord.js").Message} msg 
    */
-  constructor(bot, prefix, view, msg) {
+  constructor(boolean, bot, prefix, view, msg) {
+    this.#boolean = boolean;
     this.bot = bot;
     this.prefix = prefix;
     this.invokedWith = null;
@@ -70,7 +79,48 @@ export default class ContextUtil {
     return this.bot.user;
   }
 
+  /**
+   * @private
+   */
+  get args() {
+    const args = this.command.args;
+    const mappedArgs = [];
+
+    for(const arg of args) {
+      this.#view.skipWs();
+      
+      if(arg === true && args.indexOf(arg) === args.length - 1) {
+        // last arg must be "true" to capture the rest of the uncaptured string
+        mappedArgs.push(this.#view.readRest());
+        break;
+      }
+
+      if(arg === String) {
+        mappedArgs.push(this.#view.getWord())
+      } else if(arg === Number) {
+        const word = this.#view.getWord();
+
+        let number = parseFloat(word);
+
+        if(isNaN(number)) {
+          number = parseInt(word);
+        }
+
+        if(isNaN(number)) {
+          // should fail at this point
+          throw new InvalidArgumentError(`Argument is not a number: ${word}`, this);
+        }
+
+        mappedArgs.push(number);
+      } else if(arg === Boolean) {
+        mappedArgs.push(this.#boolean(this.#view.getWord()));
+      }
+    }
+
+    return mappedArgs;
+  }
+
   async invoke() {
-    await this.command.callback(this, this.#view.readRest());
+    await this.command.callback(this, ...this.args);
   }
 }

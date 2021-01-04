@@ -46,10 +46,12 @@ export default class TestCommandService {
     this.#services.command.register(
       new this.#utils.command.ChainableCommand()
         .withName("test")
-        .withArgs([])
-        .withCallback(async (ctx, test) => {
-          console.log(test);
-          await ctx.channel.send("got")
+        .withArgs([
+          String,
+          Boolean
+        ])
+        .withCallback(async (ctx, ...args) => {
+          await ctx.channel.send(JSON.stringify(args, null, 2));
         })
     )
   }

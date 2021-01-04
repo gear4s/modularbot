@@ -1,4 +1,6 @@
-export default class CommandService {
+import { EventEmitter } from "events"
+
+export default class CommandService extends EventEmitter {
   /**
    * @type {Logger}
    */
@@ -8,6 +10,11 @@ export default class CommandService {
    * @type {typeof import("../config").default}
    */
   #config = void 0;
+
+  /**
+   * @type {(value: any) => boolean}
+   */
+  #boolean = void 0;
 
   /**
    * @type {{
@@ -34,14 +41,27 @@ export default class CommandService {
    * 
    * @param {Logger} logger 
    * @param {typeof import("../config").default} config 
+   * @param {{
+   *  discord: require("discord.js"),
+   *  mongoose: require("mongoose"),
+   *  fs: require("fs"),
+   *  path: require("path"),
+   *  logform: require('logform'),
+   *  tripleBeam: require('triple-beam'),
+   *  winston: require('winston'),
+   *  boolean: require('boolean')
+   * }} libraries 
    * @param {import("./discord-service").default} discordService 
    * @param {typeof import("../util/string").default} stringUtil 
    * @param {typeof import("../util/context").default} contextUtil 
    * @param {typeof import("../util/command")} commandUtil 
    */
-  constructor(logger, config, discordService, stringUtil, contextUtil, commandUtil) {
+  constructor(logger, config, libraries, discordService, stringUtil, contextUtil, commandUtil) {
+    super();
+
     this.#logger = logger;
     this.#config = config;
+    this.#boolean = libraries.boolean;
     this.#services.discord = discordService;
     this.#utils.string = stringUtil;
     this.#utils.context = contextUtil;
@@ -54,13 +74,23 @@ export default class CommandService {
    * @private
    */
   init() {
+    this.#logger.debug("Initializing command service");
+
     this.#services.discord.app.on('message', async msg => {
       if (msg.author.bot) return;
 
       const ctx = this.getContext(msg);
       if(!ctx.valid) return;
 
-      await ctx.invoke();
+      try {
+        await ctx.invoke();
+      } catch(e) {
+        this.emit("command-error", e);
+      }
+    });
+
+    this.on("command-error", e => {
+      this.#logger.error(null, e);
     });
   }
 
@@ -82,7 +112,7 @@ export default class CommandService {
     const view = new this.#utils.string(msg.content);
 
     const ctx = new this.#utils.context(
-      this.#services.discord.app, null, view, msg
+      this.#boolean, this.#services.discord.app, null, view, msg
     )
 
     const prefix = this.prefix;
