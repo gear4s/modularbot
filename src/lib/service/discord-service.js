@@ -1,4 +1,25 @@
 export default class DiscordService {
+
+  /**
+   * @type {import("discord.js")}
+   */
+  #discord = void 0;
+
+  /**
+   * @type {import("discord.js").Client}
+   */
+  #app = void 0;
+
+  /**
+   * @type {Logger}
+   */
+  #logger = void 0;
+
+  /**
+   * @type {String}
+   */
+  #botToken = void 0;
+
   /**
    * 
    * @param {Logger} logger
@@ -14,26 +35,26 @@ export default class DiscordService {
    * }} libraries
    */
   constructor(logger, config, libraries) {
-    this.__discord = libraries.discord;
-    this.__logger = logger;
+    this.#discord = libraries.discord;
+    this.#logger = logger;
 
-    this.__botToken = config.bot.token;
+    this.#botToken = config.bot.token;
 
-    this.__initialize();
+    this.init();
   }
 
   get app() {
-    return this.__app || (this.__app = new this.__discord.Client());
+    return this.#app || (this.#app = new this.#discord.Client());
   }
 
-  __initialize() {
+  init() {
     this.app.on("ready", () => {
-      this.__logger.debug(`Logged in as ${this.app.user.tag}!`);
+      this.#logger.debug(`Logged in as ${this.app.user.tag}!`);
     });
   }
 
   async start() {
-    this.app.login(this.__botToken);
+    this.app.login(this.#botToken);
   }
 
   async stop() {

@@ -57,10 +57,11 @@ export default class DiscordBot {
 
   async start() {
     try {
-      await this.#container.loadDependencies(
+      this.#container.loadDependencies(
         this,
         this.#configPath
       );
+
       await this.#bindingContext.discordService.start();
 
       this.#logger.info('Started Discord Bot');
