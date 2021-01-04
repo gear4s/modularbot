@@ -30,12 +30,6 @@ export default class DiscordBot {
    */
   #bindingContext = void 0;
 
-  /**
-   * Constants for the service
-   * @type {Object}
-   */
-  #constants = void 0;
-
   constructor(configPath) {
     // @ts-ignore
     this.#logger = new Logger(require(configPath), {logform, tripleBeam, winston});
@@ -74,7 +68,7 @@ export default class DiscordBot {
   }
 
   async stop() {
-    await this.#bindingContext.discordService.stop();
+    this.#bindingContext.discordService.stop();
 
     this.#logger.info('Stopped Discord Bot');
   }

@@ -54,10 +54,10 @@ export default class DiscordService {
   }
 
   async start() {
-    this.app.login(this.#botToken);
+    await this.app.login(this.#botToken);
   }
 
-  async stop() {
+  stop() {
     this.app.destroy();
   }
 }
