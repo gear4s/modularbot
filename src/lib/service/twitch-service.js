@@ -71,13 +71,13 @@ export default class TestCommandService {
    */
   async init() {
     const twitchResponse = await this.#axios.post(
-      `https://id.twitch.tv/oauth2/token?client_id=tn16ksbrgz705jxu305iex8rsztn63&client_secret=lys7a0kf2cqj9a08c6t25fy4857eqx&grant_type=client_credentials`
+      `https://id.twitch.tv/oauth2/token?client_id=${this.#config.twitch.publicKey}&client_secret=${this.#config.twitch.secretKey}&grant_type=client_credentials`
     )
 
     this.#helix = this.#axios.create({
       baseURL: 'https://api.twitch.tv/helix/',
       headers: {
-        'Client-ID': "tn16ksbrgz705jxu305iex8rsztn63",
+        'Client-ID': this.#config.twitch.publicKey,
         "Authorization": "Bearer " + twitchResponse.data.access_token
       }
     });
