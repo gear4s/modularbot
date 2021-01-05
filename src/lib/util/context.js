@@ -76,7 +76,12 @@ export default class ContextUtil {
   }
 
   get me() {
+    this.send()
     return this.bot.user;
+  }
+
+  get send() {
+    return this.msg.channel.send.bind(this.msg.channel);
   }
 
   /**
@@ -88,7 +93,7 @@ export default class ContextUtil {
 
     for(const arg of args) {
       this.#view.skipWs();
-      
+
       if(arg === true && args.indexOf(arg) === args.length - 1) {
         // last arg must be "true" to capture the rest of the uncaptured string
         mappedArgs.push(this.#view.readRest());

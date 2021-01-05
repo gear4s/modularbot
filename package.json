@@ -1,8 +1,9 @@
 {
-  "name": "core-service",
+  "name": "modular-bot",
   "version": "0.0.1-a",
-  "description": "Filing Findings core service",
+  "description": "Modular Not",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -14,6 +15,7 @@
     "dev": "babel-node src/bin/discord-bot.js"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "boolean": "^3.0.2",
     "discord.js": "^12.5.1",

@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import Logger from "../logger";
 
 export default class CommandService extends EventEmitter {
   /**
@@ -26,7 +27,7 @@ export default class CommandService extends EventEmitter {
   /**
    * @type {{
    *  string: typeof import("../util/string").default
-   *  context: typeof import("../util/context").default
+   *  context: Context
    *  command: typeof import("../util/command")
    * }}
    */
@@ -38,8 +39,7 @@ export default class CommandService extends EventEmitter {
   #commands = [];
 
   /**
-   * 
-   * @param {Logger} logger 
+   * @param {import("~/../types").Logger} logger 
    * @param {typeof import("../config").default} config 
    * @param {{
    *  discord: require("discord.js"),
@@ -53,7 +53,7 @@ export default class CommandService extends EventEmitter {
    * }} libraries 
    * @param {import("./discord-service").default} discordService 
    * @param {typeof import("../util/string").default} stringUtil 
-   * @param {typeof import("../util/context").default} contextUtil 
+   * @param {import("~/../types").Context} contextUtil 
    * @param {typeof import("../util/command")} commandUtil 
    */
   constructor(logger, config, libraries, discordService, stringUtil, contextUtil, commandUtil) {
@@ -107,10 +107,12 @@ export default class CommandService extends EventEmitter {
   /**
    * @private
    * @param {import("discord.js").Message} msg 
+   * @returns {Context}
    */
   getContext(msg) {
     const view = new this.#utils.string(msg.content);
 
+    /** @type {Context} */
     const ctx = new this.#utils.context(
       this.#boolean, this.#services.discord.app, null, view, msg
     )
