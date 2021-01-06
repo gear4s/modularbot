@@ -27,9 +27,7 @@ interface Logger {
 
 import * as djs from "discord.js"
 
-class Context {
-  constructor(): Context
-
+export interface Context {
   valid: Boolean
 
   guild: djs.Guild
@@ -49,7 +47,7 @@ class Context {
   send(content: djs.StringResolvable, options: djs.MessageOptions & { split: true | djs.SplitOptions }): Promise<djs.Message[]>
   send(content: djs.StringResolvable, options: djs.MessageOptions): Promise<djs.Message | djs.Message[]>
 
-  args: Array
+  args: Array<any>
 
-  async invoke(): void;
+  invoke(): Promise<void>;
 }

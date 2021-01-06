@@ -1,21 +1,15 @@
+import type * as Winston from "winston"
+import type { Libraries } from "../container"
+import type Config from "./config"
+
 export default class Logger {
-  /**
-   * 
-   * @param {*} config 
-   * @param {{
-   *  discord: require("discord.js"),
-   *  mongoose: require("mongoose"),
-   *  fs: require("fs"),
-   *  path: require("path"),
-   *  logform: require('logform'),
-   *  tripleBeam: require('triple-beam'),
-   *  winston: require('winston')
-   * }} libraries
-   */
-  constructor(config, libraries) {
+  private logger: Winston.Logger
+
+  constructor(config: typeof Config, libraries: Libraries) {
     const errorHunter = libraries.logform.format(info => {
       if (info.error) return info;
 
+      // @ts-ignore
       const splat = info[libraries.tripleBeam.SPLAT] || [];
       info.error = splat.find(obj => obj instanceof Error);
 
@@ -40,7 +34,7 @@ export default class Logger {
     );
 
     const tps = [];
-    let logLevel = 'debug';
+    let logLevel = 'info';
 
     tps.push(new libraries.winston.transports.Console({
       format: winstonConsoleFormat,
@@ -58,29 +52,29 @@ export default class Logger {
       }
     }
 
-    this.__logger = libraries.winston.createLogger({
+    this.logger = libraries.winston.createLogger({
       transports: tps,
       level: logLevel
     });
   }
 
-  info(msg) {
-    this.__logger.info(msg);
+  info(msg: string) {
+    this.logger.info(msg);
   };
 
-  debug(msg) {
-    this.__logger.debug(msg);
+  debug(msg: string) {
+    this.logger.debug(msg);
   };
 
-  warn(msg) {
-    this.__logger.warn(msg);
+  warn(msg: string) {
+    this.logger.warn(msg);
   };
 
-  error(msg, error) {
-    this.__logger.error(msg, error);
+  error(msg: string, error: Error) {
+    this.logger.error(msg, error);
   };
 
   setLevel(level) {
-    this.__logger.level = level;
+    this.logger.level = level;
   };
 }

@@ -1,61 +1,26 @@
+import type { Libraries } from "~/container"
+import type LoggerType from "../logger"
+import type Config from "../config"
+import type * as CommandUtil from "../util/command"
+import type * as Axios from "axios"
+import type Discord from "discord.js"
+import type ContextUtil from "../util/context"
+
 export default class TestCommandService {
-  /**
-   * @type {Logger}
-   */
-  #logger = void 0;
+  #watching: string[] = [];
+  #logger: LoggerType = void 0;
+  #config: typeof Config = void 0;
+  #services: { command: any } = {
+    command: null
+  };
+  #utils: { command: typeof CommandUtil} = {
+    command: null
+  };
+  #axios: Axios.AxiosStatic;
+  #discord: typeof Discord;
+  #helix: Axios.AxiosInstance;
 
-  /**
-   * @type {typeof import("../config").default}
-   */
-  #config = void 0;
-
-  /**
-   * @type {{
-   *  command: import("./command-service").default
-   * }}
-   */
-  #services = {};
-
-  /**
-   * @type {{
-   *  command: typeof import("../util/command")
-   * }}
-   */
-  #utils = {};
-
-  /**
-   * @type {import("axios").default}
-   */
-  #axios = void 0;
-
-  /**
-   * @type {import("discord.js")}
-   */
-  #discord = void 0;
-
-  /**
-   * @type {import("axios").AxiosInstance}
-   */
-  #helix = void 0;
-
-  /**
-   * 
-   * @param {Logger} logger 
-   * @param {typeof import("../config").default} config 
-   * @param {{
-   *  discord: import("discord.js"),
-   *  mongoose: import("mongoose"),
-   *  fs: import("fs"),
-   *  path: import("path"),
-   *  logform: import('logform'),
-   *  tripleBeam: import('triple-beam'),
-   *  winston: import('winston'),
-   *  axios: import("axios").default
-   * }} libraries
-   * @param {import("./command-service").default} commandService 
-   * @param {typeof import("../util/command")} commandUtil 
-   */
-  constructor(logger, config, libraries, commandService, commandUtil) {
+  constructor(logger: LoggerType, config: typeof Config, libraries: Libraries, commandService, commandUtil) {
     this.#logger = logger;
     this.#config = config;
     this.#services.command = commandService;
@@ -90,6 +55,16 @@ export default class TestCommandService {
           String
         ])
     )
+
+    this.#services.command.register(
+      new this.#utils.command.ChainableCommand()
+        .withCallback(this.watchForStreamerToBeLive)
+        .withName("watch")
+        .withArgs([
+          String,
+          this.#discord.TextChannel
+        ])
+    )
   }
 
   /**
@@ -120,7 +95,18 @@ export default class TestCommandService {
     });
   }
 
-  watch = async () => {
+  watchForStreamerToBeLive = async (ctx: ContextUtil, streamerName: string, channel: Discord.TextChannel | Discord.DMChannel | Discord.NewsChannel) => {
+    !channel && (channel = ctx.channel);
+
+    if(streamerName === "") {
+      return await ctx.send("I need a streamer name! `!live <streamerName>`")
+    }
+
+    this.#watching.push(streamerName);
+    await channel.send("Added " + streamerName + " to the streamer watch list")
+  }
+
+  watch = () => {
     // AFK here for now
     // if(streamerNames === "") {
     //   return await ctx.send("I need at least one streamer name! `!live <...streamerNames>`")

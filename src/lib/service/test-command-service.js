@@ -11,7 +11,7 @@ export default class TestCommandService {
 
   /**
    * @type {{
-   *  command: import("./command-service").default
+   *  command: import("./command-service.ts").default
    * }}
    */
   #services = {};
@@ -27,7 +27,7 @@ export default class TestCommandService {
    * 
    * @param {Logger} logger 
    * @param {typeof import("../config").default} config 
-   * @param {import("./command-service").default} commandService 
+   * @param {import("./command-service.ts").default} commandService 
    * @param {typeof import("../util/command")} commandUtil 
    */
   constructor(logger, config, commandService, commandUtil) {
