@@ -10,6 +10,10 @@
     "declaration": true,
     "declarationDir": "dist",
     // Ensure that Babel can safely transpile files in the TypeScript project
-    "isolatedModules": true
-  }
+    "isolatedModules": true,
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "test/*"
+  ]
 }

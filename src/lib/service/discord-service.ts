@@ -1,7 +1,9 @@
-import type Discord from "discord.js"
+/* eslint-disable no-unused-vars */
+import type Discord from "discord.js";
 import type Logger from "../logger";
 import type Config from "../config";
 import type { Libraries } from "../../container";
+/* eslint-enable no-unused-vars */
 
 export default class DiscordService {
   #discord: typeof Discord;

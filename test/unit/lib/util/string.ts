@@ -1,8 +1,8 @@
-import StringUtil from "~/src/lib/util/string"
+import StringUtil from "../../../../src/lib/util/string";
 
 describe(testName(module), () => {
   it("should work with the provided string", () => {
-    const str = "    !hello \"world views\""
+    const str = '    !hello "world views"';
     const strut = new StringUtil(str);
 
     // skip over white space
@@ -26,10 +26,10 @@ describe(testName(module), () => {
 
     // undo the last action (clear the last quote)
     strut.undo();
-    expect(strut.current).to.equal("\"");
+    expect(strut.current).to.equal('"');
 
     // skip over the last quote
-    expect(strut.skipString("\"")).to.be.true;
+    expect(strut.skipString('"')).to.be.true;
 
     // at the end of the string; eof should be true, current should be null
     expect(strut.eof).to.be.true;
@@ -56,9 +56,9 @@ describe(testName(module), () => {
     try {
       strut.getQuotedWord();
       throw new Error("This should not have passed");
-    } catch(e) {
+    } catch (e) {
       // it should throw an unexpected quote error
-      expect(e).to.have.property("message").which.equals("Unexpected quote: \"")
+      expect(e).to.have.property("message").which.equals('Unexpected quote: "');
     }
   });
 });

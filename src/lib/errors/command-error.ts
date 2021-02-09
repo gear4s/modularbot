@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 import type ContextUtil from "../util/context";
+/* eslint-enable no-unused-vars */
 
 export default class CommandError extends Error {
-  context: typeof ContextUtil
+  context: typeof ContextUtil;
 
   /**
    * Construct a command error

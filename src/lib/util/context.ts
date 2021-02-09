@@ -1,24 +1,32 @@
-import InvalidArgumentError from "../errors/command-invalid-argument-error"
-import type StringView from "./string"
-import type { CommandObject } from "./command"
-import type { Client as ClientType, Message as MessageType } from "discord.js"
-import type { boolean as BooleanType } from "boolean"
-import type Discord from "discord.js"
+import InvalidArgumentError from "../errors/command-invalid-argument-error";
 
-const ChannelRe = /<#(.+)>/
+/* eslint-disable no-unused-vars */
+import type StringView from "./string";
+import type { CommandObject, ValidCommandArguments } from "./command";
+import type Discord from "discord.js";
+
+import type { boolean as BooleanType } from "boolean";
+/* eslint-enable no-unused-vars */
+
+const MentionRE = /<(?:#|@!?)(.+)>/;
 
 export default class ContextUtil {
   private view: StringView = null;
   private boolean: typeof BooleanType = void 0;
   private discord: typeof Discord = null;
-  bot: ClientType = null;
+  bot: Discord.Client = null;
   command: CommandObject = null;
   prefix: string = null;
   invokedWith: string = null;
-  msg: MessageType = null;
+  msg: Discord.Message = null;
 
   constructor(
-    discord: typeof Discord, boolean: typeof BooleanType, bot: ClientType, prefix: string, view: StringView, msg: MessageType
+    discord: typeof Discord,
+    boolean: typeof BooleanType,
+    bot: Discord.Client,
+    prefix: string,
+    view: StringView,
+    msg: Discord.Message
   ) {
     this.discord = discord;
     this.boolean = boolean;
@@ -30,83 +38,123 @@ export default class ContextUtil {
     this.command = null;
   }
 
-  get valid() {
+  get valid(): boolean {
     return this.prefix !== null && this.command !== null;
   }
 
-  get guild() {
+  get guild(): Discord.Guild {
     return this.msg.guild;
   }
 
-  get channel() {
+  get channel(): Discord.TextChannel | Discord.DMChannel | Discord.NewsChannel {
     return this.msg.channel;
   }
 
-  get author() {
+  get author(): Discord.User {
     return this.msg.author;
   }
 
-  get me() {
-    this.send()
+  get me(): Discord.ClientUser {
     return this.bot.user;
   }
 
-  get send() {
+  get send(): (
+    | Discord.TextChannel
+    | Discord.DMChannel
+    | Discord.NewsChannel
+  )["send"] {
     return this.msg.channel.send.bind(this.msg.channel);
   }
 
-  /**
-   * @private
-   */
-  async args() {
+  private getSnowflakeFromStr(str: string): string {
+    // first attempt: number
+    if (!isNaN(Number(str))) {
+      return str; // STR has to be ID only
+    }
+
+    const match = str.match(MentionRE);
+    if (match) {
+      return match[1];
+    }
+
+    return null;
+  }
+
+  private async args(): Promise<ValidCommandArguments[]> {
     const args = this.command.args;
     const mappedArgs = [];
 
-    for(const arg of args) {
+    for (const arg of args) {
+      this.view.skipWs(); // skip all white space
+
+      let result: any = this.view.getWord();
+
+      switch (arg) {
+        /* eslint-disable no-fallthrough */
+        case Boolean:
+          result = this.boolean(result);
+
+        case String:
+          break;
+        /* eslint-enable no-fallthrough */
+
+        case Number:
+          if (isNaN((result = Number(result).valueOf()))) {
+            // should fail at this point
+            throw new InvalidArgumentError(
+              `Argument is not a number: ${result}`,
+              this
+            );
+          }
+
+          break;
+
+        default: {
+          // don't execute below if not a discord object
+          if (
+            // @ts-ignore
+            !(arg.prototype instanceof this.discord.Base)
+          )
+            break;
+
+          const snowflakeId = this.getSnowflakeFromStr(result);
+
+          if (snowflakeId === null) {
+            result = null; // invalid ID will always be null
+            break;
+          }
+
+          switch (arg) {
+            case this.discord.TextChannel:
+            case this.discord.VoiceChannel:
+            case this.discord.NewsChannel:
+            case this.discord.StoreChannel:
+              result = await this.bot.channels.fetch(snowflakeId, true);
+              break;
+
+            case this.discord.User:
+              result = await this.bot.users.fetch(snowflakeId, true);
+              break;
+
+            default:
+              throw new InvalidArgumentError(arg, this);
+          }
+        }
+      }
+
+      mappedArgs.push(result);
+    }
+
+    // capture everything after the last argument's type
+    if (!this.view.eof) {
       this.view.skipWs();
-
-      if(arg === true && args.indexOf(arg) === args.length - 1) {
-        // last arg must be "true" to capture the rest of the uncaptured string
-        mappedArgs.push(this.view.readRest());
-        break;
-      }
-
-      if(arg === String) {
-        mappedArgs.push(this.view.getWord())
-      } else if(arg === Number) {
-        const word = this.view.getWord();
-
-        let number = parseFloat(word);
-
-        if(isNaN(number)) {
-          number = parseInt(word);
-        }
-
-        if(isNaN(number)) {
-          // should fail at this point
-          throw new InvalidArgumentError(`Argument is not a number: ${word}`, this);
-        }
-
-        mappedArgs.push(number);
-      } else if(arg === Boolean) {
-        mappedArgs.push(this.boolean(this.view.getWord()));
-      } else if(
-        // @ts-ignore
-        arg.prototype instanceof this.discord.Channel
-      ) {
-        const match = this.view.getWord().match(ChannelRe);
-        if(match) {
-          const channelId = match[1];
-          const channel = await this.bot.channels.fetch(channelId, true)
-          mappedArgs.push(channel);
-        } else mappedArgs.push(null); // invalid channel will always be null
-      }
+      mappedArgs.push(this.view.readRest());
     }
 
     return mappedArgs;
   }
 
-  async invoke() {
-    await this.command.callback(this, ...await this.args());
+  async invoke(): Promise<void> {
+    await this.command.callback(this, ...(await this.args()));
   }
 }

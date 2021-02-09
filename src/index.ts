@@ -1,19 +1,22 @@
-import Logger from './lib/logger'
-import Container from './container'
+import Logger from "./lib/logger";
+import Container from "./container";
 
-import logform from "logform"
-import tripleBeam from "triple-beam"
-import winston from "winston"
-import { Logger as LoggerType } from '../types'
+import logform from "logform";
+import tripleBeam from "triple-beam";
+import winston from "winston";
 
 export default class DiscordBot {
   private container: Container = new Container();
-  private logger: LoggerType;
+  private logger: Logger;
   private configPath: String = void 0;
   private bindingContext: { [x: string]: any } = void 0;
 
-  constructor(configPath) {
-    this.logger = new Logger(require(configPath), {logform, tripleBeam, winston});
+  constructor(configPath: string) {
+    this.logger = new Logger(require(configPath), {
+      logform,
+      tripleBeam,
+      winston,
+    });
     this.container = new Container();
 
     this.configPath = configPath;
@@ -21,7 +24,7 @@ export default class DiscordBot {
     this.bindingContext = {};
   }
 
-  static createServer(configPath) {
+  static createServer(configPath: string) {
     const server = new DiscordBot(configPath);
     return server.start();
   }
@@ -32,14 +35,11 @@ export default class DiscordBot {
 
   async start() {
     try {
-      this.container.loadDependencies(
-        this,
-        this.configPath
-      );
+      this.container.loadDependencies(this, this.configPath);
 
       await this.bindingContext.discordService.start();
 
-      this.logger.info('Started Discord Bot');
+      this.logger.info("Started Discord Bot");
 
       return this;
     } catch (e) {
@@ -51,6 +51,6 @@ export default class DiscordBot {
   async stop() {
     this.bindingContext.discordService.stop();
 
-    this.logger.info('Stopped Discord Bot');
+    this.logger.info("Stopped Discord Bot");
   }
-};
+}

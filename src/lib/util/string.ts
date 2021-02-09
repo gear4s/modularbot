@@ -51,14 +51,14 @@ export default class StringView {
 
   skipWs(): boolean {
     let pos = 0;
-    while(!this.eof) {
+    while (!this.eof) {
       try {
-        const current = this.buffer[this.index + pos]
+        const current = this.buffer[this.index + pos];
         if (current.trim() !== "") {
           break;
         }
         pos += 1;
-      } catch(e) {
+      } catch (e) {
         break;
       }
     }
@@ -68,7 +68,7 @@ export default class StringView {
     return this.previous !== this.index;
   }
 
-  skipString(string): boolean {
+  skipString(string: string): boolean {
     const strlen = string.length;
 
     if (this.buffer.slice(this.index, this.index + strlen) === string) {
@@ -99,7 +99,7 @@ export default class StringView {
 
     try {
       result = this.buffer[this.index + 1];
-    } catch(e) {
+    } catch (e) {
       result = null;
     }
 
@@ -110,12 +110,12 @@ export default class StringView {
 
   getWord(): string {
     let pos = 0;
-    while(!this.eof) {
+    while (!this.eof) {
       try {
         const current = this.buffer[this.index + pos];
         if (current.trim() === "") break;
         pos += 1;
-      } catch(e) {
+      } catch (e) {
         break;
       }
     }
@@ -132,8 +132,8 @@ export default class StringView {
       return null;
     }
 
-    let result;
-    let escapedQuotes;
+    let result: Array<string>;
+    let escapedQuotes: Array<string>;
 
     const close_quote = QUOTES[current];
     const is_quoted = !!close_quote;
@@ -146,41 +146,41 @@ export default class StringView {
       escapedQuotes = ALL_QUOTES;
     }
 
-    while(!this.eof) {
+    while (!this.eof) {
       current = this.get();
       if (!current) {
         if (is_quoted) {
           // unexpected EOF
           throw new Error(close_quote); // ExpectedClosingQuoteError(close_quote)
         }
-        return result.join('');
+        return result.join("");
       }
 
       // currently we accept strings in the format of "hello world"
       // to embed a quote inside the string you must escape it: "a \"world\""
-      if (current == "\\") {
-          const next_char = this.get();
-          if (!next_char) {
-            // string ends with \ and no character after it
-            if (is_quoted) {
-              // if we're quoted then we're expecting a closing quote
-              throw new Error(close_quote);
-            }
-
-            // if we aren't then we just let it through
-            return result.join('');
+      if (current === "\\") {
+        const next_char = this.get();
+        if (!next_char) {
+          // string ends with \ and no character after it
+          if (is_quoted) {
+            // if we're quoted then we're expecting a closing quote
+            throw new Error(close_quote);
           }
 
-          if (escapedQuotes.includes(next_char)) {
-            // escaped quote
-            result.push(next_char);
-          } else {
-            // different escape character, ignore it
-            this.undo();
-            result.push(current);
-          }
+          // if we aren't then we just let it through
+          return result.join("");
+        }
 
-          continue;
+        if (escapedQuotes.includes(next_char)) {
+          // escaped quote
+          result.push(next_char);
+        } else {
+          // different escape character, ignore it
+          this.undo();
+          result.push(current);
+        }
+
+        continue;
       }
 
       if (!is_quoted && ALL_QUOTES.includes(current)) {
@@ -197,12 +197,12 @@ export default class StringView {
         }
 
         // we're quoted so it's okay
-        return result.join('');
+        return result.join("");
       }
 
       if (current.trim() === "" && !is_quoted) {
         // end of word found
-        return result.join('');
+        return result.join("");
       }
 
       result.push(current);

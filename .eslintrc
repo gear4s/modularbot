@@ -1,5 +1,5 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 11
   },
@@ -14,11 +14,16 @@
     "eslint:recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
+    "plugin:import/typescript",
     "prettier"
   ],
-  "globals": {},
+  "globals": {
+    "testName": true,
+    "sinon": true,
+    "expect": true
+  },
   "plugins": [
-    "babel",
+    "@babel",
     "prettier"
   ],
   "rules": {

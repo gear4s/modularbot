@@ -1,17 +1,18 @@
-import path from "path"
-import program from 'commander'
-import DiscordBot from ".."
-import { config } from "dotenv"
-config()
+import path from "path";
+import program from "commander";
+import DiscordBot from "..";
+import { config } from "dotenv";
+config();
 
-const pkg = require('../../package.json');
+import pkg from "../../package.json";
 
 program
-    .version(pkg.version)
-    .option('-c, --config [string]', 'Config path')
-    .parse(process.argv);
+  .version(pkg.version)
+  .option("-c, --config [string]", "Config path")
+  .parse(process.argv);
 
-const configPath = program.config || path.resolve(__dirname, '..', 'lib', 'config');
+const configPath =
+  program.config || path.resolve(__dirname, "..", "lib", "config");
 
 (async () => {
   try {
@@ -21,15 +22,15 @@ const configPath = program.config || path.resolve(__dirname, '..', 'lib', 'confi
       try {
         await server.stop();
         process.exit(0);
-      } catch(err) {
+      } catch (err) {
         console.error(err);
         process.exit(1);
       }
     };
 
-    process.on('SIGINT', terminate);
-    process.on('SIGTERM', terminate);
-  } catch(err) {
+    process.on("SIGINT", terminate);
+    process.on("SIGTERM", terminate);
+  } catch (err) {
     console.error(err);
     process.exit(1);
   }

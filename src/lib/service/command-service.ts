@@ -1,14 +1,16 @@
-import { EventEmitter } from "events"
+import { EventEmitter } from "events";
+
+/* eslint-disable no-unused-vars */
 import type Logger from "../logger";
 import type Config from "../config";
-import type { boolean as BooleanType } from "boolean"
+import type { boolean as BooleanType } from "boolean";
 import type * as Discord from "discord.js";
 import type DiscordService from "./discord-service";
-import type Context from "../util/context";
 import type * as Command from "../util/command";
 import type StringView from "../util/string";
-import type { Libraries } from "~/container";
+import type { Libraries } from "../../container";
 import type ContextUtil from "../util/context";
+/* eslint-enable no-unused-vars */
 
 export default class CommandService extends EventEmitter {
   private logger: Logger;
@@ -16,13 +18,13 @@ export default class CommandService extends EventEmitter {
   private boolean: typeof BooleanType;
   private discord: typeof Discord;
   private services: {
-    discord: DiscordService
+    discord: DiscordService;
   };
 
   private utils: {
-    string: typeof StringView
-    context: typeof Context
-    command: typeof Command
+    string: typeof StringView;
+    context: typeof ContextUtil;
+    command: typeof Command;
   };
 
   private commands: Command.CommandObject[] = [];
@@ -43,101 +45,93 @@ export default class CommandService extends EventEmitter {
     this.discord = libraries.discord;
     this.boolean = libraries.boolean;
     this.services = {
-      discord: discordService
-    }
+      discord: discordService,
+    };
     this.utils = {
       string: stringUtil,
       context: contextUtil,
-      command: commandUtil
-    }
+      command: commandUtil,
+    };
 
     this.init();
   }
 
-  /**
-   * @private
-   */
-  init() {
+  private init() {
     this.logger.debug("Initializing command service");
 
-    this.services.discord.app.on('message', async msg => {
+    this.services.discord.app.on("message", async (msg) => {
       if (msg.author.bot) return;
 
       const ctx = this.getContext(msg);
-      if(!ctx.valid) return;
+      if (!ctx.valid) return;
 
       try {
         await ctx.invoke();
-      } catch(e) {
+      } catch (e) {
         this.emit("command-error", e);
       }
     });
 
-    this.on("command-error", e => {
+    this.on("command-error", (e) => {
       this.logger.error(null, e);
     });
   }
 
-  /**
-   * @private
-   * @returns {String[]}
-   */
-  get prefix() {
+  private get prefix(): string[] {
     return this.config.bot.prefix
       .split(/(?<!\\),/g)
-      .map(prefix => prefix.replace("\\,", ","));
+      .map((prefix) => prefix.replace("\\,", ","));
   }
 
-  /**
-   * @private
-   * @param {import("discord.js").Message} msg 
-   * @returns {Context}
-   */
-  getContext(msg) {
+  getContext(msg: Discord.Message): ContextUtil {
     const view = new this.utils.string(msg.content);
-
-    /** @type {Context} */
     const ctx = new this.utils.context(
-      this.discord, this.boolean, this.services.discord.app, null, view, msg
-    )
+      this.discord,
+      this.boolean,
+      this.services.discord.app,
+      null,
+      view,
+      msg
+    );
 
     const prefix = this.prefix;
     let invokedPrefix: string | string[] = prefix;
 
     try {
-      if (prefix.some(prefix => msg.content.startsWith(prefix))) {
-        invokedPrefix = prefix.find(prefix => view.skipString(prefix));
+      if (prefix.some((prefix) => msg.content.startsWith(prefix))) {
+        invokedPrefix = prefix.find((prefix) => view.skipString(prefix));
       } else {
         return ctx;
       }
-    } catch(e) {
-      throw new Error("Iterable `defaultPrefix` or list returned from `prefix` must contain only strings");
+    } catch (e) {
+      throw new Error(
+        "Iterable `defaultPrefix` or list returned from `prefix` must contain only strings"
+      );
     }
 
     const invoker = view.getWord();
     ctx.invokedWith = invoker;
     ctx.prefix = invokedPrefix;
-    ctx.command = this.commands.find(({name}) => name === invoker) || null;
+    ctx.command = this.commands.find(({ name }) => name === invoker) || null;
     return ctx;
   }
 
-  /**
-   * Register a new command
-   * @public
-   * @param {import("../util/command").ChainableCommand} command The command object to register
-   */
-  register = command => {
-    if(!(command instanceof this.utils.command.ChainableCommand)) {
-      throw new Error("Command must be an object of the Chainable Command class")
+  register = (command: Command.ChainableCommand) => {
+    if (!(command instanceof this.utils.command.ChainableCommand)) {
+      throw new Error(
+        "Command must be an object of the Chainable Command class"
+      );
     }
 
     const jsonCommand = command.toJSON();
 
-    const commandExists = this.commands.some(({name}) => name === jsonCommand.name);
-    if(commandExists) {
-      throw new Error(`Command \`${jsonCommand.name}\` already exists`)
+    const commandExists = this.commands.some(
+      ({ name }) => name === jsonCommand.name
+    );
+    if (commandExists) {
+      throw new Error(`Command \`${jsonCommand.name}\` already exists`);
     }
 
     this.commands.push(jsonCommand);
-  }
+  };
 }
