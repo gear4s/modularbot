@@ -71,7 +71,7 @@ describe(testName(module), () => {
     } catch (e) {
       failed = true;
       expect(e).to.be.an.instanceOf(InvalidArgType);
-      expect(e.message).to.equal("arg");
+      expect(e.message).to.equal("Invalid argument type 'arg'");
     }
 
     if (!failed) {

@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "type-check": "tsc --noEmit",
-    "test": "nyc --reporter=html mocha --recursive --require @babel/register --require chai/register-expect --require sinon-register --file test/fixtures test/unit test/integration",
+    "test": "nyc --reporter=html mocha --recursive --require test/fixtures/babel.js --require chai/register-expect --require sinon-register --file test/fixtures test/unit test/integration",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint-fix": "npm run lint -- --fix",
     "build": "npm run build:types && npm run build:js",
@@ -59,7 +59,8 @@
     "prettier": "^2.1.2",
     "sinon": "^9.2.1",
     "sinon-chai": "^3.5.0",
-    "totally-di": "^0.2.2"
+    "totally-di": "^0.2.2",
+    "ts-node": "^9.1.1"
   },
   "nyc": {
     "check-coverage": false,
