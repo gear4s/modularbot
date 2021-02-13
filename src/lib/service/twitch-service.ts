@@ -74,14 +74,10 @@ export default class TestCommandService {
     );
   }
 
-  /**
-   * @param {import("~/../types").Context} ctx
-   * @param {String} streamerName
-   * @returns {Promise<void>}
-   */
-  checkIfStreamerIsLive = async (ctx, streamerName) => {
+  checkIfStreamerIsLive = async (ctx: ContextUtil, streamerName: string) => {
     if (streamerName === "") {
-      return await ctx.send("I need a streamer name! `!live <streamerName>`");
+      await ctx.send("I need a streamer name! `!live <streamerName>`");
+      return;
     }
 
     const {

@@ -3,10 +3,6 @@
     "target": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./src",  // all paths are relative to the baseUrl
-    "paths": {
-        "~/*" : ["*"]   // resolve any `~/foo/bar` to `<baseUrl>/foo/bar`
-    },
     "declaration": true,
     "declarationDir": "dist",
     // Ensure that Babel can safely transpile files in the TypeScript project
@@ -14,6 +10,7 @@
     "resolveJsonModule": true
   },
   "exclude": [
-    "test/*"
+    "test/*",
+    "dist/*"
   ]
 }
