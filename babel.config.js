@@ -5,4 +5,11 @@ module.exports = {
     "@babel/plugin-proposal-class-properties",
   ],
   only: ["./src", "./test"],
+  env: {
+    test: {
+      plugins: [
+        "istanbul"
+      ],
+    }
+  }
 };

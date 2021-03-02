@@ -11,6 +11,6 @@
   },
   "exclude": [
     "test/*",
-    "dist/*"
+    "dist/**/*"
   ]
 }
