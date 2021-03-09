@@ -29,8 +29,23 @@ export default class Container {
   private config: typeof Config;
   private logger: Logger;
 
-  loadDependencies(context, configPath) {
-    this.bindingContext = context.bindings;
+  public async start() {
+    try {
+      await this.bindingContext.discordService.start();
+      this.logger.info("Started Discord Bot");
+    } catch (e) {
+      this.logger.error(e.toString());
+      throw e;
+    }
+  }
+
+  public async stop() {
+    this.bindingContext.discordService.stop();
+    this.logger.info("Stopped Discord Bot");
+  }
+
+  public loadDependencies(bindingContext: {}, configPath: string) {
+    this.bindingContext = bindingContext;
     this.config = require(configPath).default;
     this.logger = new Logger(this.config, { logform, tripleBeam, winston });
 

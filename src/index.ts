@@ -8,7 +8,7 @@ import winston from "winston";
 export default class DiscordBot {
   private container: Container = new Container();
   private logger: Logger;
-  private configPath: String = void 0;
+  private configPath: string = void 0;
   private bindingContext: { [x: string]: any } = void 0;
 
   constructor(configPath: string) {
@@ -34,23 +34,12 @@ export default class DiscordBot {
   }
 
   async start() {
-    try {
-      this.container.loadDependencies(this, this.configPath);
-
-      await this.bindingContext.discordService.start();
-
-      this.logger.info("Started Discord Bot");
-
-      return this;
-    } catch (e) {
-      this.logger.error(e.toString());
-      throw e;
-    }
+    this.container.loadDependencies(this.bindingContext, this.configPath);
+    await this.container.start();
+    return this;
   }
 
   async stop() {
-    this.bindingContext.discordService.stop();
-
-    this.logger.info("Stopped Discord Bot");
+    await this.container.stop();
   }
 }
