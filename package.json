@@ -3,7 +3,6 @@
   "version": "0.0.1-a",
   "description": "Modular Bot",
   "main": "index.js",
-  "types": "types/index.d.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
