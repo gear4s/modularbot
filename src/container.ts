@@ -62,7 +62,6 @@ export default class Container {
   private __registerDependencies() {
     this.injector.register("libraries", {
       discord: require("discord.js"),
-      mongoose: require("mongoose"),
       fs: require("fs"),
       path: require("path"),
       logform: require("logform"),
